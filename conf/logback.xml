@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="15 seconds" debug="false">
+    <property name="LOG_DIR" value="log" />
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>[%d{ISO8601}]-[%thread] %-5level %logger - %msg%n</pattern>
@@ -7,7 +9,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>log/pixelplace.log</file>
+        <file>${LOG_DIR}/pixelplace.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>log/pixelplace.%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1mb</totalSizeCap>
@@ -20,7 +22,7 @@
     </appender>
 
     <appender name="PIXELS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>log/pixels.log</file>
+        <file>${LOG_DIR}/pixels.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>log/pixels.%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1mb</totalSizeCap>
@@ -33,7 +35,7 @@
     </appender>
 
     <appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>log/access.log</file>
+        <file>${LOG_DIR}/access.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>log/access.%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1mb</totalSizeCap>

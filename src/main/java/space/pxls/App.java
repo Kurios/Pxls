@@ -101,15 +101,17 @@ public class App extends Jooby {
             board[coordsToIndex(x, y)] = (byte) color;
             placementLog.info(x + "," + y + "," + color + " by " + req.ip());
 
-            for (WebSocket socket : sockets) {
-                socket.send(new BoardUpdate(x, y, color));
-            }
-
             saveBoard();
 
             lastPlaceTime.put(req.ip(), System.currentTimeMillis());
 
             resp.status(Status.OK).send(new BoardPlaceResponse(cooldownSeconds));
+
+            for (WebSocket socket : sockets) {
+                if (socket.isOpen()) {
+                    socket.send(new BoardUpdate(x, y, color));
+                }
+            }
         });
 
         on("prod", () -> {
@@ -159,12 +161,14 @@ public class App extends Jooby {
     }
 
     private void loadBoard() throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get("board.dat"));
+        String path = require(Config.class).getString("game.file");
+        byte[] bytes = Files.readAllBytes(Paths.get(path));
         System.arraycopy(bytes, 0, board, 0, Math.min(bytes.length, board.length));
     }
 
     private void saveBoard() throws IOException {
-        Files.write(Paths.get("board.dat"), board);
+        String path = require(Config.class).getString("game.file");
+        Files.write(Paths.get(path), board);
     }
 
     private int coordsToIndex(int x, int y) {
