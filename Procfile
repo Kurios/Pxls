@@ -1,0 +1,1 @@
+web: java -jar target/pixls-*.jar prod game.cooldown=300 game.storage=/storage/board.dat
