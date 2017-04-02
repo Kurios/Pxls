@@ -3,10 +3,7 @@ package space.pxls;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.typesafe.config.Config;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Status;
-import org.jooby.WebSocket;
+import org.jooby.*;
 import org.jooby.json.Gzon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +68,7 @@ public class App extends Jooby {
         });
 
         get("/cooldown", (req, resp) -> {
-            long lastPlace = lastPlaceTime.getOrDefault(req.ip(), 0L);
+            long lastPlace = lastPlaceTime.getOrDefault(getIp(req), 0L);
             long nextPlace = lastPlace + cooldownSeconds * 1000;
             long waitMillis = nextPlace - System.currentTimeMillis();
 
@@ -83,7 +80,7 @@ public class App extends Jooby {
             int y = req.param("y").intValue();
             int color = req.param("color").intValue();
 
-            long lastPlace = lastPlaceTime.getOrDefault(req.ip(), 0L);
+            long lastPlace = lastPlaceTime.getOrDefault(getIp(req), 0L);
             long nextPlace = lastPlace + cooldownSeconds * 1000;
             long waitMillis = nextPlace - System.currentTimeMillis();
 
@@ -99,11 +96,11 @@ public class App extends Jooby {
             }
 
             board[coordsToIndex(x, y)] = (byte) color;
-            placementLog.info(x + "," + y + "," + color + " by " + req.ip());
+            placementLog.info(x + "," + y + "," + color + " by " + getIp(req));
 
             saveBoard();
 
-            lastPlaceTime.put(req.ip(), System.currentTimeMillis());
+            lastPlaceTime.put(getIp(req), System.currentTimeMillis());
 
             resp.status(Status.OK).send(new BoardPlaceResponse(cooldownSeconds));
 
@@ -158,6 +155,11 @@ public class App extends Jooby {
         get("/wp-admin/install.php", (req, resp) -> {
             resp.redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         });
+    }
+
+    private String getIp(Request r) {
+        if (r.header("X-Forwarded-For").isSet()) return r.header("X-Forwarded-For").value();
+        return r.ip();
     }
 
     private void loadBoard() throws IOException {

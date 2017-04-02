@@ -43,6 +43,7 @@ window.App = {
         $(".ui").hide();
         $(".message").hide();
         $(".cursor").hide();
+        $(".cooldown-timer").hide();
 
         $.get("/boardinfo", this.initBoard.bind(this));
         $.get("/cooldown", function (data) {
