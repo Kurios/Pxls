@@ -44,7 +44,12 @@ window.App = {
         $(".message").hide();
         $(".cursor").hide();
 
-        jQuery.get("/boardinfo", this.initBoard.bind(this));
+        $.get("/boardinfo", this.initBoard.bind(this));
+        $.get("/cooldown", function (data) {
+            this.cooldown = Math.ceil(data);
+            setInterval(this.updateTime.bind(this), 1000);
+        }.bind(this));
+
         this.initBoardMovement();
         this.initBoardPlacement();
         this.initCursor();
@@ -52,8 +57,6 @@ window.App = {
         this.initAlert();
         this.initCoords();
         Notification.requestPermission();
-
-        setInterval(this.updateTime.bind(this), 1000);
     },
     initBoard: function (data) {
         jQuery.get("/boarddata", this.drawBoard.bind(this));
@@ -72,10 +75,6 @@ window.App = {
         $(".loading").fadeOut(500);
         this.updateTransform();
         this.initSocket();
-
-        $.get("/cooldown", function (data) {
-            this.cooldown = Math.ceil(data);
-        }.bind(this));
 
         var cx = getQueryVariable("x") || this.width / 2;
         var cy = getQueryVariable("y") || this.height / 2;
