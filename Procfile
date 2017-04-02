@@ -1,1 +1,1 @@
-web: java -jar target/pxls-1.0-SNAPSHOT.jar prod port=$PORT game.cooldown=300 game.file=/storage/board.dat
+web: java -jar target/pxls-1.0-SNAPSHOT.jar prod port=$PORT game.cooldown=300 game.file=/storage/board.dat application.adminToken=$TOKEN
