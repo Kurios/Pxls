@@ -24,7 +24,7 @@ public class App extends Jooby {
     private int height;
     private byte[] board;
     private List<String> palette = Lists.newArrayList("#FFFFFF", "#E4E4E4", "#888888", "#222222", "#FFA7D1", "#E50000", "#E59500", "#A06A42", "#E5D900", "#94E044", "#02BE01", "#00D3DD", "#0083C7", "#0000EA", "#CF6EE4", "#820080");
-    private Set<WebSocket> sockets = new ConcurrentSet<>();
+    private Set<WebSocket> sockets = ConcurrentHashMap.newKeySet();
     private Map<String, Long> lastPlaceTime = new ConcurrentHashMap<>();
 
     private Logger placementLog = LoggerFactory.getLogger("PIXELS");
@@ -61,6 +61,7 @@ public class App extends Jooby {
             sockets.add(sock);
             sock.onClose((status) -> {
                 sockets.remove(sock);
+                System.out.println("removed");
             });
         }).produces(MediaType.json);
 
@@ -116,6 +117,11 @@ public class App extends Jooby {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (Err e) {
+                    if (e.statusCode() == 1000) {
+                        System.out.println("WS is closed, ignoring");
+                        sockets.remove(socket);
+                    }
                 }
             }
         });
