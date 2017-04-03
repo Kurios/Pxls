@@ -3,6 +3,7 @@ package space.pxls;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.typesafe.config.Config;
+import io.netty.util.internal.ConcurrentSet;
 import org.jooby.*;
 import org.jooby.json.Gzon;
 import org.slf4j.Logger;
@@ -10,18 +11,21 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.channels.ClosedChannelException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class App extends Jooby {
     private int width;
     private int height;
     private byte[] board;
     private List<String> palette = Lists.newArrayList("#FFFFFF", "#E4E4E4", "#888888", "#222222", "#FFA7D1", "#E50000", "#E59500", "#A06A42", "#E5D900", "#94E044", "#02BE01", "#00D3DD", "#0083C7", "#0000EA", "#CF6EE4", "#820080");
-    private Set<WebSocket> sockets = new HashSet<>();
-    private Map<String, Long> lastPlaceTime = new HashMap<>();
+    private Set<WebSocket> sockets = new ConcurrentSet<>();
+    private Map<String, Long> lastPlaceTime = new ConcurrentHashMap<>();
 
     private Logger placementLog = LoggerFactory.getLogger("PIXELS");
     private int cooldownSeconds = 0;
@@ -107,7 +111,9 @@ public class App extends Jooby {
 
             for (WebSocket socket : sockets) {
                 try {
-                    socket.send(new BoardUpdate(x, y, color));
+                    if (socket.isOpen()) {
+                        socket.send(new BoardUpdate(x, y, color));
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
