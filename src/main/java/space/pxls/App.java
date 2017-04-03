@@ -128,7 +128,11 @@ public class App extends Jooby {
 
         on("prod", () -> {
             err((req, resp, err) -> {
-                resp.send(new Error(err.getCause().getMessage()));
+                Throwable deep = err;
+                while (err.getCause() != null) {
+                    deep = err.getCause();
+                }
+                resp.send(new Error(deep.getMessage()));
             });
         });
 
