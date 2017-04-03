@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.channels.ClosedChannelException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -105,8 +106,10 @@ public class App extends Jooby {
             resp.status(Status.OK).send(new BoardPlaceResponse(cooldownSeconds));
 
             for (WebSocket socket : sockets) {
-                if (socket.isOpen()) {
+                try {
                     socket.send(new BoardUpdate(x, y, color));
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
